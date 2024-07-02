@@ -40,8 +40,7 @@ app.shortcut('send_message', async ({ shortcut, ack, client }) => {
             type: 'input',
             block_id: 'message_block',
             element: {
-              type: 'plain_text_input',
-              multiline: true,
+              type: 'rich_text_input',
               action_id: 'message'
             },
             label: {
@@ -66,8 +65,11 @@ app.view('send_message_view', async ({ ack, view, client }) => {
   await ack();
 
   const user = view.state.values.user_block.user.selected_user;
-  const message = view.state.values.message_block.message.value;
-
+  const message = view.state.values.message_block.message.rich_text_value;
+  if (!message) {
+    console.error('Message is empty');
+    return;
+  }
   try {
     await client.chat.postMessage({
       channel: user,
